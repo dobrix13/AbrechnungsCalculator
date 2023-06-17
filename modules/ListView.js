@@ -2,16 +2,16 @@ import React from "react";
 import { StyleSheet, Text, View, Pressable } from "react-native";
 
 
-export default function ListView({gotoEditView}) {
-  
+export default function ListView({gotoEditView, list}) {
+  console.log(list)
   return (
 	<View>
 		<Text>
-			List goes here!!
+			wait
 		</Text>
     <View>
       <Pressable onPress={()=>{gotoEditView()}}>
-        <Text>Back to edit</Text>
+        <Text>+</Text>
       </Pressable>
     </View>
 	</View>

@@ -5,20 +5,24 @@ import ListView from "./modules/ListView";
 
 export default function App() {
   const AppName = "Money Watcher";
-  const [umsatz, setUmsatz] = React.useState(0);
-  const [tip, setTip] = React.useState(0);
-  const [bar, setBar] = React.useState(0);
+ 
+  class Abrechnung {
+    constructor(name, bar, voucher, cards, tip, umsatz, abgabe) {
+      this.name = name;
+      this.bar = bar;
+      this.voucher = voucher;
+      this.cards = cards;
+    }
+  }
+  const [umsatz, setUmsatz] = React.useState(0)
   const [listMode, setListMode] = React.useState(true);
+  const [listArr, setListArr] = React.useState([]);
 
   const colectData = (id, bar, voucher, cards) => {
-    var tUmstatz = parseFloat(bar) + parseFloat(voucher) + parseFloat(cards);
-    var tTip = umsatz * (0.02).toFixed(2);
-    var tBar = parseFloat(bar) + this.tTip + 100;
+    setUmsatz(bar + cards + voucher)
+    var abr = new Abrechnung(id, bar, voucher, cards);
+    setListArr(listArr => [...listArr, abr]);
     setListMode(true);
-    setBar(tBar);
-    setTip(tTip);
-    setUmsatz(tUmstatz);
-    console.log(id, bar, voucher, cards);
   };
   const gotoEditView = ()=>{
     setListMode(false);
@@ -29,7 +33,20 @@ export default function App() {
       console.log('forbidden')
     }
       else{
-        console.log('gerechnet')
+        var b = parseFloat(listArr[listArr.length-1].bar);
+        var v = parseFloat(listArr[listArr.length-1].voucher);
+        var c = parseFloat(listArr[listArr.length-1].cards);
+
+        var u = c + v + b;
+        var tt = u * 0.02;
+        var t = tt.toFixed(2)
+        
+        var a = add(b , t)
+        
+        function add(b , t){
+          return(parseFloat(t) + parseFloat(b))
+        };
+       alert(a)
       }
     
   }, [umsatz])
@@ -37,7 +54,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       {listMode ? 
-      <ListView gotoEditView={gotoEditView}/> : 
+      <ListView gotoEditView={gotoEditView} list={listArr}/> : 
       <EditView fieldTitle="Input details:" colectData={colectData} />}
       
     </View>
