@@ -9,7 +9,7 @@ export default function ListView({gotoEditView, list}) {
 		<Text>
 			wait
 		</Text>
-    <View>
+    <View Style={Styles.button}>
       <Pressable onPress={()=>{gotoEditView()}}>
         <Text>+</Text>
       </Pressable>
