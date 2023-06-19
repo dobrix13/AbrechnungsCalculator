@@ -1,62 +1,93 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Alert } from "react-native";
 import EditView from "./modules/EditView";
 import ListView from "./modules/ListView";
 
 export default function App() {
   const AppName = "Money Watcher";
- 
+
   class Abrechnung {
-    constructor(name, bar, voucher, cards, tip, umsatz, abgabe) {
+    constructor(name, bar, voucher, cards, u, t, result) {
       this.name = name;
       this.bar = bar;
       this.voucher = voucher;
       this.cards = cards;
+      this.umsatz = u;
+      this.tipAbgabe = t;
+      this.bargeldAbgabe = result;
     }
   }
-  const [umsatz, setUmsatz] = React.useState(0)
+  const [umsatz, setUmsatz] = React.useState(0);
+  const [tipAbgabe, setTipAbgabe] = React.useState(0);
+  const [bargeldAbgabe, setBargeldAbgabe] = React.useState(0);
   const [listMode, setListMode] = React.useState(true);
   const [listArr, setListArr] = React.useState([]);
 
+  const showAlert = () =>
+    Alert.alert(
+      tipAbgabe,
+      bargeldAbgabe,
+      [
+        {
+          text: "ok",
+          onPress: () => Alert.alert("Nix Ok"),
+          style: "cancel",
+        },
+      ],
+      {
+        cancelable: true,
+        onDismiss: () => Alert.alert("Ruhe jetzt."),
+      }
+    );
+
   const colectData = (id, bar, voucher, cards) => {
-    setUmsatz(bar + cards + voucher)
-    var abr = new Abrechnung(id, bar, voucher, cards);
-    setListArr(listArr => [...listArr, abr]);
+    var b = parseFloat(bar);
+    var v = parseFloat(voucher);
+    var c = parseFloat(cards);
+    var u = c + v + b;
+    setUmsatz(u);
+
+    var tt = u * 0.02;
+    var t = tt.toFixed(2);
+    setTipAbgabe(t);
+    var a = add(b, t);
+    var result = add(a, 100).toFixed(2);
+    setBargeldAbgabe(result);
+    function add(b, t) {
+      return parseFloat(t) + parseFloat(b);
+    }
+    var abr = new Abrechnung(id, bar, voucher, cards, u, t, result);
+    setListArr([...listArr, abr]);
     setListMode(true);
   };
-  const gotoEditView = ()=>{
+
+  const gotoEditView = () => {
     setListMode(false);
-  }
+  };
 
-  React.useEffect(()=>{
-    if(!umsatz){
-      console.log('forbidden')
+  const returnBack = () => {
+    setListMode(true);
+    console.log("abrechnung canceled");
+  };
+
+  React.useEffect(() => {
+    if (!umsatz) {
+      console.log("forbidden");
+    } else {
+      showAlert();
     }
-      else{
-        var b = parseFloat(listArr[listArr.length-1].bar);
-        var v = parseFloat(listArr[listArr.length-1].voucher);
-        var c = parseFloat(listArr[listArr.length-1].cards);
-
-        var u = c + v + b;
-        var tt = u * 0.02;
-        var t = tt.toFixed(2)
-        
-        var a = add(b , t)
-        
-        function add(b , t){
-          return(parseFloat(t) + parseFloat(b))
-        };
-       alert(a)
-      }
-    
-  }, [umsatz])
+  }, [listArr]);
 
   return (
     <View style={styles.container}>
-      {listMode ? 
-      <ListView gotoEditView={gotoEditView} list={listArr}/> : 
-      <EditView fieldTitle="Input details:" colectData={colectData} />}
-      
+      {listMode ? (
+        <ListView
+          gotoEditView={gotoEditView}
+          list={listArr}
+        />
+      ) : (
+        <EditView fieldTitle="Input details:" colectData={colectData} returnBack={returnBack} />
+      )}
     </View>
   );
 }

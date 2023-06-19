@@ -1,17 +1,21 @@
 import React from "react";
 import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { View, Text, StyleSheet, TextInput, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Pressable,
+  Button,
+} from "react-native";
 
-const EditView = ({ colectData, fieldTitle }) => {
+const EditView = ({ colectData, fieldTitle, returnBack }) => {
   const [value, setValue] = React.useState(null);
   const [isFocus, setIsFocus] = React.useState(false);
   const [bargeld, onChangeBargeld] = React.useState("");
   const [voucher, onChangeVoucher] = React.useState("");
   const [cards, onChangeCards] = React.useState("");
-  const [selected, setSelected] = React.useState("");
-
-
   const waiters = [
     { value: "1", label: "Missim " },
     { value: "2", label: "Anca" },
@@ -27,22 +31,22 @@ const EditView = ({ colectData, fieldTitle }) => {
 
   return (
     <View style={styles.container}>
-
       <Dropdown
+        searchField
         style={styles.dropdown}
         data={waiters}
-        placeholder={!isFocus ? "Select item" : "..."}
+        placeholder={!isFocus ? "Kelner auswälen" : "..."}
         searchPlaceholder="Search..."
         valueField="value"
         labelField="label"
-        searchField
         value={value}
         onChange={(item) => setValue(item.value)}
       />
-
       <Text style={styles.text}>{fieldTitle}</Text>
       <TextInput
         style={styles.input}
+        maxLength={8}
+        defaultValue="0"
         onChangeText={onChangeBargeld}
         value={bargeld}
         placeholder="Bar_gegeben"
@@ -50,6 +54,8 @@ const EditView = ({ colectData, fieldTitle }) => {
       />
       <TextInput
         style={styles.input}
+        maxLength={8}
+        defaultValue="0"
         onChangeText={onChangeVoucher}
         value={voucher}
         placeholder="Gutscheine"
@@ -57,20 +63,41 @@ const EditView = ({ colectData, fieldTitle }) => {
       />
       <TextInput
         style={styles.input}
+        maxLength={8}
+        defaultValue="0"
         onChangeText={onChangeCards}
         value={cards}
         placeholder="Karten"
         keyboardType="numeric"
       />
-      <View style={styles.button}>
-        <Pressable
+      <View style={styles.buttonContainer}>
+        <Button
           onPress={() => {
-            value? colectData(waiters[value -1].label, bargeld, voucher, cards):
-            console.log('select some item');
+            value
+              ? bargeld
+                ? voucher 
+                  ? cards ?  colectData(
+                      waiters[value - 1].label,
+                      bargeld,
+                      voucher,
+                      cards
+                    )
+                    : onChangeCards('0')
+                  : onChangeVoucher("0")
+                : onChangeBargeld("0")
+              : alert("Bitte Kelner aus die liste auswälen");
           }}
-        >
-          <Text style={styles.text}>I'm pressable!</Text>
-        </Pressable>
+          title="Umrechnen"
+          color="#841584"
+          accessibilityLabel="calculate values"
+        />
+
+        <Button
+          onPress={() => returnBack()}
+          title="Cancel"
+          color="red"
+          accessibilityLabel="return to list view"
+        />
       </View>
     </View>
   );
@@ -83,14 +110,21 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
-  text: { color: "white" },
+  buttonContainer: {
+    width: "80%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
+  },
+  text: { color: "white", fontSize: 25 },
   input: {
-    height: 35,
+    height: 45,
     width: "80%",
     color: "white",
     borderWidth: 0.5,
     borderRadius: 8,
     borderColor: "orangered",
+    marginVertical: 8,
   },
   dropdown: {
     height: 40,
@@ -104,20 +138,14 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 5,
   },
-  label: {
-    position: "absolute",
-    backgroundColor: "white",
-    left: 22,
-    top: 8,
-    zIndex: 999,
-    paddingHorizontal: 8,
-    fontSize: 14,
-  },
+
   placeholderStyle: {
     fontSize: 16,
+    color: "white",
   },
   selectedTextStyle: {
     fontSize: 16,
+    color: "white",
   },
   iconStyle: {
     width: 20,
@@ -130,7 +158,7 @@ const styles = StyleSheet.create({
   button: {
     borderWidth: 1,
     borderColor: "white",
-    margin: 25,
+    padding: 25,
     width: "80%",
     alignItems: "center",
   },
